@@ -1,3 +1,3 @@
 variable "name" {
-  default = "daniel"
+  description = "this will be the prefix "
 }

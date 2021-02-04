@@ -21,35 +21,13 @@ resource "azurerm_subnet" "internal" {
   address_prefixes     = ["10.0.2.0/24"]
 }
 
-resource "azurerm_linux_virtual_machine_scale_set" "example" {
-  name                = "${var.name}-example-vmss"
-  resource_group_name = azurerm_resource_group.example.name
+# Without the use of variables
+module "linux_vm_set" {
+  source              = "git::https://github.com/jasonskidmore/terraform-azure-linux-scale-set.git"
+  instance_count      = 1
+  name                = "${var.name}-linux-vm-set"
   location            = azurerm_resource_group.example.location
-  sku                 = "Standard_F2"
-  instances           = 1
-  admin_username      = "adminuser"
-  admin_password      = "Testing123#"
-
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "16.04-LTS"
-    version   = "latest"
-  }
-
-  os_disk {
-    storage_account_type = "Standard_LRS"
-    caching              = "ReadWrite"
-  }
-
-  network_interface {
-    name    = "${var.name}-example"
-    primary = true
-
-    ip_configuration {
-      name      = "internal"
-      primary   = true
-      subnet_id = azurerm_subnet.internal.id
-    }
-  }
+  resource_group_name = azurerm_resource_group.example.name
+  network_interface   = {name = "demo", subnet_id = azurerm_subnet.internal.id}
+  tags                = {costcenter = "777747", client = "demo"}
 }
